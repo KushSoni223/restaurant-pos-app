@@ -20,6 +20,8 @@ class UserRead(ORMModel):
     role: UserRole
     name: str | None = None
     email: str | None = None
+    phone: str | None = None
+    profile_picture: str | None = None
 
 
 class LoginResponse(BaseModel):

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Alert } from 'react-native';
 import { router } from 'expo-router';
 
 import {
@@ -10,26 +9,32 @@ import {
   PasswordField,
 } from '@/components/auth';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 import { getHomeRouteForRole } from '@/navigation/roleNavigation';
 
 export default function LoginScreen() {
   const { login } = useAuth();
+  const { showError, showSuccess } = useToast();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleLogin = async () => {
     if (!email.trim() || !password) {
-      Alert.alert('Missing fields', 'Please enter your email and password.');
+      showError('Missing fields', 'Please enter your email and password.');
       return;
     }
 
     setIsSubmitting(true);
     try {
       const user = await login({ email: email.trim(), password });
+      showSuccess(
+        'Welcome back!',
+        user.name ? `Signed in as ${user.name}` : 'You have signed in successfully.',
+      );
       router.replace(getHomeRouteForRole(user.role));
     } catch {
-      Alert.alert('Login failed', 'Invalid credentials or server unavailable.');
+      showError('Login failed', 'Invalid credentials or server unavailable.');
     } finally {
       setIsSubmitting(false);
     }

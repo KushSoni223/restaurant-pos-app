@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 
 import {
@@ -11,10 +11,12 @@ import {
 } from '@/components/auth';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/hooks/useToast';
 import { getHomeRouteForRole } from '@/navigation/roleNavigation';
 
 export default function SignupScreen() {
   const { register } = useAuth();
+  const { showError } = useToast();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -23,17 +25,17 @@ export default function SignupScreen() {
 
   const handleSignup = async () => {
     if (!name.trim() || !email.trim() || !password) {
-      Alert.alert('Missing fields', 'Please fill in all fields.');
+      showError('Missing fields', 'Please fill in all fields.');
       return;
     }
 
     if (password.length < 6) {
-      Alert.alert('Weak password', 'Password must be at least 6 characters.');
+      showError('Weak password', 'Password must be at least 6 characters.');
       return;
     }
 
     if (password !== confirmPassword) {
-      Alert.alert('Password mismatch', 'Passwords do not match.');
+      showError('Password mismatch', 'Passwords do not match.');
       return;
     }
 
@@ -46,7 +48,7 @@ export default function SignupScreen() {
       });
       router.replace(getHomeRouteForRole(user.role));
     } catch {
-      Alert.alert('Sign up failed', 'Could not create account. Email may already be in use.');
+      showError('Sign up failed', 'Could not create account. Email may already be in use.');
     } finally {
       setIsSubmitting(false);
     }

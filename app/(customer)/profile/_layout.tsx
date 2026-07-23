@@ -13,10 +13,11 @@ export default function ProfileLayout() {
         contentStyle: { backgroundColor: colors.background },
       }}
     >
-      <Stack.Screen name="index" options={{ title: 'Profile' }} />
+      <Stack.Screen name="index" options={{ headerShown: false }} />
       <Stack.Screen name="view" options={{ title: 'View Profile' }} />
       <Stack.Screen name="edit" options={{ title: 'Edit Profile' }} />
       <Stack.Screen name="change-password" options={{ title: 'Change Password' }} />
+      <Stack.Screen name="page/[slug]" options={{ title: 'Page' }} />
     </Stack>
   );
 }

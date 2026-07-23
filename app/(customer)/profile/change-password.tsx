@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 
 import { PasswordField } from '@/components/auth';
 import { profileScreenStyles } from '@/components/customer';
-import { Button, SAFE_AREA_TAB, Screen } from '@/components/common';
+import { Button, Screen } from '@/components/common';
 import { colors } from '@/constants/colors';
 import { useToast } from '@/hooks/useToast';
 
@@ -50,12 +50,7 @@ export default function ChangePasswordScreen() {
   };
 
   return (
-    <Screen
-      edges={SAFE_AREA_TAB}
-      scrollable
-      backgroundColor={colors.background}
-      contentStyle={profileScreenStyles.content}
-    >
+    <Screen layout="stack" scrollable backgroundColor={colors.background}>
       <View style={profileScreenStyles.formCard}>
         <Text style={profileScreenStyles.hint}>
           Choose a strong password with at least 6 characters. This screen saves locally for now

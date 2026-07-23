@@ -10,20 +10,27 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { colors } from '@/constants/colors';
+import {
+  getLayoutEdges,
+  getScreenPadding,
+  type SafeAreaEdge,
+  type ScreenLayoutPreset,
+} from '@/layout/screenLayout';
 
-export type SafeAreaEdge = 'top' | 'bottom' | 'left' | 'right';
-
-/** Full-screen layouts without a navigation header (auth, splash). */
-export const SAFE_AREA_FULL: SafeAreaEdge[] = ['top', 'bottom', 'left', 'right'];
-
-/** Screens inside tab navigators — header and tab bar handle vertical insets. */
-export const SAFE_AREA_TAB: SafeAreaEdge[] = ['left', 'right'];
-
-/** Screens inside a stack with a header but no tab bar. */
-export const SAFE_AREA_STACK: SafeAreaEdge[] = ['left', 'right', 'bottom'];
+export {
+  SAFE_AREA_FULL,
+  SAFE_AREA_STACK,
+  SAFE_AREA_TAB,
+  SAFE_AREA_TAB_HEADERLESS,
+  type SafeAreaEdge,
+  type ScreenLayoutPreset,
+} from '@/layout/screenLayout';
 
 interface ScreenProps {
   children: ReactNode;
+  /** Preferred — applies safe area + standard screen gutters automatically. */
+  layout?: ScreenLayoutPreset;
+  /** Manual edge override. Ignored when `layout` is set. */
   edges?: SafeAreaEdge[];
   style?: ViewStyle;
   contentStyle?: ViewStyle;
@@ -35,7 +42,8 @@ interface ScreenProps {
 
 export function Screen({
   children,
-  edges = SAFE_AREA_FULL,
+  layout = 'full',
+  edges,
   style,
   contentStyle,
   scrollContentStyle,
@@ -44,18 +52,22 @@ export function Screen({
   scrollable = true,
 }: ScreenProps) {
   const insets = useSafeAreaInsets();
+  const resolvedEdges = edges ?? getLayoutEdges(layout);
+  const screenPadding = edges ? undefined : getScreenPadding(layout, insets);
 
-  const safeStyle = {
-    paddingTop: edges.includes('top') ? insets.top : 0,
-    paddingBottom: edges.includes('bottom') ? insets.bottom : 0,
-    paddingLeft: edges.includes('left') ? insets.left : 0,
-    paddingRight: edges.includes('right') ? insets.right : 0,
+  const safeStyle = screenPadding ?? {
+    paddingTop: resolvedEdges.includes('top') ? insets.top : 0,
+    paddingBottom: resolvedEdges.includes('bottom') ? insets.bottom : 0,
+    paddingLeft: resolvedEdges.includes('left') ? insets.left : 0,
+    paddingRight: resolvedEdges.includes('right') ? insets.right : 0,
   };
 
+  // Scrollable screens must NOT use flex:1 on the inner body — that locks height
+  // to the viewport and clips overflowing content (forms, lists, etc.).
   const body = (
     <View
       style={[
-        scrollable ? styles.scrollInner : styles.content,
+        scrollable ? styles.scrollBody : styles.content,
         { backgroundColor },
         safeStyle,
         contentStyle,
@@ -112,8 +124,8 @@ const styles = StyleSheet.create({
   scrollContent: {
     flexGrow: 1,
   },
-  scrollInner: {
-    flex: 1,
+  scrollBody: {
+    // Size to children so ScrollView can grow and scroll.
   },
   content: {
     flex: 1,

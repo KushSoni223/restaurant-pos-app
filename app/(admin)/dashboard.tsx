@@ -1,11 +1,11 @@
 import { StyleSheet, Text } from 'react-native';
 
-import { SAFE_AREA_TAB, Screen, ScreenHeader } from '@/components/common';
+import { Screen, ScreenHeader } from '@/components/common';
 import { colors } from '@/constants/colors';
 
 export default function AdminDashboardScreen() {
   return (
-    <Screen edges={SAFE_AREA_TAB} contentStyle={styles.content}>
+    <Screen layout="tab">
       <ScreenHeader title="Dashboard" subtitle="Sales overview and quick stats" />
       <Text style={styles.placeholder}>Admin — dashboard screen</Text>
     </Screen>
@@ -13,9 +13,6 @@ export default function AdminDashboardScreen() {
 }
 
 const styles = StyleSheet.create({
-  content: {
-    padding: 16,
-  },
   placeholder: {
     color: colors.textMuted,
   },

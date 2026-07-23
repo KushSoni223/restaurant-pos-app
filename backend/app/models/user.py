@@ -1,10 +1,14 @@
 import enum
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import DateTime, Enum, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import Column, DateTime, Enum, ForeignKey, String, Table, func
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
+
+if TYPE_CHECKING:
+    from app.models.menu import MenuCategory
 
 
 class UserRole(str, enum.Enum):
@@ -28,6 +32,15 @@ class TimestampMixin:
     )
 
 
+# Areas (menu categories) a chef is skilled in — used for order routing.
+chef_specialties = Table(
+    "chef_specialties",
+    Base.metadata,
+    Column("user_id", ForeignKey("users.id", ondelete="CASCADE"), primary_key=True),
+    Column("category_id", ForeignKey("menu_categories.id", ondelete="CASCADE"), primary_key=True),
+)
+
+
 class User(Base, TimestampMixin):
     __tablename__ = "users"
 
@@ -41,3 +54,11 @@ class User(Base, TimestampMixin):
         default=UserRole.CUSTOMER,
     )
     is_active: Mapped[bool] = mapped_column(default=True, nullable=False)
+    # Whether a staff member is currently accepting work (on shift).
+    is_available: Mapped[bool] = mapped_column(default=True, nullable=False)
+
+    specialties: Mapped[list["MenuCategory"]] = relationship(
+        "MenuCategory",
+        secondary=chef_specialties,
+        lazy="selectin",
+    )

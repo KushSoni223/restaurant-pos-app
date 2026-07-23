@@ -2,10 +2,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import { login as loginApi, register as registerApi } from '@/api/auth';
+import { authToken } from '@/api/authToken';
 import { LoginCredentials, RegisterCredentials } from '@/types/auth';
 import { User } from '@/types/user';
 
 const AUTH_STORAGE_KEY = '@restaurant_pos_auth';
+const TOKEN_STORAGE_KEY = '@restaurant_pos_token';
 
 interface AuthContextValue {
   user: User | null;
@@ -24,28 +26,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    AsyncStorage.getItem(AUTH_STORAGE_KEY)
-      .then((stored) => {
-        if (stored) {
-          setUser(JSON.parse(stored) as User);
+    Promise.all([AsyncStorage.getItem(AUTH_STORAGE_KEY), AsyncStorage.getItem(TOKEN_STORAGE_KEY)])
+      .then(([storedUser, storedToken]) => {
+        if (storedUser && storedToken) {
+          setUser(JSON.parse(storedUser) as User);
+          authToken.set(storedToken);
+        } else if (storedUser || storedToken) {
+          void AsyncStorage.multiRemove([AUTH_STORAGE_KEY, TOKEN_STORAGE_KEY]);
         }
       })
       .finally(() => setIsLoading(false));
   }, []);
 
+  const persistSession = useCallback(async (nextUser: User, token: string | null | undefined) => {
+    setUser(nextUser);
+    await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextUser));
+    if (token) {
+      authToken.set(token);
+      await AsyncStorage.setItem(TOKEN_STORAGE_KEY, token);
+    }
+  }, []);
+
   const login = useCallback(async (credentials: LoginCredentials) => {
     const response = await loginApi(credentials);
-    setUser(response.user);
-    await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(response.user));
+    await persistSession(response.user, response.token);
     return response.user;
-  }, []);
+  }, [persistSession]);
 
   const register = useCallback(async (credentials: RegisterCredentials) => {
     const response = await registerApi(credentials);
-    setUser(response.user);
-    await AsyncStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(response.user));
+    await persistSession(response.user, response.token);
     return response.user;
-  }, []);
+  }, [persistSession]);
 
   const updateUser = useCallback(async (updates: Partial<User>) => {
     setUser((prev) => {
@@ -61,7 +73,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     setUser(null);
-    await AsyncStorage.removeItem(AUTH_STORAGE_KEY);
+    authToken.set(null);
+    await AsyncStorage.multiRemove([AUTH_STORAGE_KEY, TOKEN_STORAGE_KEY]);
   }, []);
 
   const value = useMemo(

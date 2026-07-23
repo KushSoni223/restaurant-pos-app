@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import { ProfileAvatar, ProfileInfoRow, profileScreenStyles } from '@/components/customer';
-import { SAFE_AREA_TAB, Screen } from '@/components/common';
+import { Screen } from '@/components/common';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -9,12 +9,7 @@ export default function ViewProfileScreen() {
   const { user } = useAuth();
 
   return (
-    <Screen
-      edges={SAFE_AREA_TAB}
-      scrollable
-      backgroundColor={colors.background}
-      contentStyle={profileScreenStyles.content}
-    >
+    <Screen layout="stack" scrollable backgroundColor={colors.background}>
       <View style={styles.avatarSection}>
         <ProfileAvatar name={user?.name} email={user?.email} size={88} />
       </View>

@@ -4,11 +4,6 @@ import { colors } from '@/constants/colors';
 import { spacing } from '@/constants/spacing';
 
 export const profileScreenStyles = StyleSheet.create({
-  content: {
-    paddingHorizontal: spacing.screenHorizontal,
-    paddingTop: spacing.screenTop,
-    paddingBottom: spacing.screenBottom,
-  },
   card: {
     backgroundColor: colors.surface,
     borderRadius: spacing.cardRadius,
@@ -23,14 +18,14 @@ export const profileScreenStyles = StyleSheet.create({
     borderColor: colors.border,
     paddingHorizontal: spacing.cardInner,
     paddingTop: spacing.cardInner,
-    paddingBottom: 8,
-    marginBottom: 20,
+    paddingBottom: spacing.sm,
+    marginBottom: spacing.sectionGap,
   },
   hint: {
     fontSize: 14,
     color: colors.textMuted,
     lineHeight: 20,
-    marginBottom: 16,
+    marginBottom: spacing.lg,
   },
   readOnlyInput: {
     opacity: 0.7,

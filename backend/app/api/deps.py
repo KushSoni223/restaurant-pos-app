@@ -4,10 +4,10 @@ from typing import Annotated
 from fastapi import Depends, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import UnauthorizedError
+from app.core.exceptions import ForbiddenError, UnauthorizedError
 from app.core.security import decode_access_token
 from app.db.session import get_db
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.repositories.user import UserRepository
 from app.services.auth import AuthService
 
@@ -41,3 +41,12 @@ async def get_current_user(
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
+
+
+async def require_admin(user: CurrentUser) -> User:
+    if user.role != UserRole.ADMIN:
+        raise ForbiddenError("Admin access required")
+    return user
+
+
+AdminUser = Annotated[User, Depends(require_admin)]

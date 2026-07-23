@@ -43,6 +43,12 @@ docker compose -f docker/docker-compose.yml up -d db
 # Run migrations (after you add models)
 alembic upgrade head
 
+# Seed default admin (admin@gmail.com / Test@123)
+python scripts/seed_admin.py
+
+# Seed menu categories + items (needed for chef areas & ordering)
+python scripts/seed_menu.py
+
 # Start API
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```

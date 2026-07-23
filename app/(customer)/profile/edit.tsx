@@ -4,7 +4,7 @@ import { Text, View } from 'react-native';
 
 import { AuthField } from '@/components/auth';
 import { profileScreenStyles } from '@/components/customer';
-import { Button, SAFE_AREA_TAB, Screen } from '@/components/common';
+import { Button, Screen } from '@/components/common';
 import { colors } from '@/constants/colors';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/useToast';
@@ -38,12 +38,7 @@ export default function EditProfileScreen() {
   };
 
   return (
-    <Screen
-      edges={SAFE_AREA_TAB}
-      scrollable
-      backgroundColor={colors.background}
-      contentStyle={profileScreenStyles.content}
-    >
+    <Screen layout="stack" scrollable backgroundColor={colors.background}>
       <View style={profileScreenStyles.formCard}>
         <Text style={profileScreenStyles.hint}>
           Update your display name. Email changes require admin support.

@@ -163,7 +163,7 @@ export default function WaiterPaymentsScreen() {
           ))
         )}
 
-        <Button title="Logout" onPress={handleLogout} variant="secondary" style={styles.logout} />
+        {/* <Button title="Logout" onPress={handleLogout} variant="secondary" style={styles.logout} /> */}
       </ScrollView>
     </View>
   );
